@@ -45,7 +45,7 @@ export const insert_workout = async ( db, fields ) => {
         UPDATE WorkoutSheet
         SET ${update_fields(fields)}
         WHERE worksheet_id = (SELECT worksheet_id FROM WorkoutCalendar WHERE workout_date = date('now'));
-      `)
+        `)
       }
       else {
         await tx.executeSqlAsync(`
@@ -55,7 +55,7 @@ export const insert_workout = async ( db, fields ) => {
         console.log(`
         INSERT INTO WorkoutSheet
         ${set_fields(fields)};
-      `)
+        `)
 
         const result = await tx.executeSqlAsync(`SELECT MAX(worksheet_id) FROM WorkoutSheet`)
         
