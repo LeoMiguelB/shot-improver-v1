@@ -81,48 +81,6 @@ export default Page = () => {
     }
   ];
 
-  const isValidFraction = (name, counterpart, component, input) => {
-    // no need to clean input since we were setting it cleaned in the first place
-
-    console.log("input isValidFraction ", input)
-    
-    let truth = true
-    
-    setValue(name, input)
-
-    console.log("component: ", component)
-    console.log("curr and counterpart: ", getValues(name), getValues(counterpart))
-  
-    if(component == "numerator" && getValues(name) > getValues(counterpart)) {
-      setError(name, {type: "custom", "message": "cannot have more makes than attempts"})
-      truth = false
-    } else if (component == "denominator" && getValues(name) < getValues(counterpart)) {
-      truth = false     
-    }
-
-    console.log("truth value ", truth)
-
-    setFError(name, { type: "custom", "message": "cannot make more than you attempt"})
-
-    return truth
-  }
-
-  const handleNumberChange = (input) => {
-    const { target: {name, value} } = input;
-
-    console.log(input)
-
-    console.log(name, value)
-
-    const cleanedValue = value.replace(/[^0-9]/g, '')
-    const parsedValue = parseInt(cleanedValue, 10)
-
-    if(isNaN(parsedValue))
-      return
-
-    setValue(name, parsedValue)
-  }
-
   /*
   TODO implement this errors handling
   cannot make more than attempted...
@@ -130,49 +88,49 @@ export default Page = () => {
   return (
     <View style={styles.container}>  
       <ScrollView>
-        {
-          target_area.map((item, index) => {
-            if(!item.include)
-              return
-            return (
-              <View key={item}>
-                <Text key={item.area+1}>{item.area}</Text>
-                <FormProvider key="form-provider-1" {...methods}>
-                  <TextInput
-                    key={`${item.area}.makes`+1} 
-                    name={`${item.area}.makes`} 
-                    label="makes"
-                    defaultValue="0"
-                    keyboardType="numeric"
-                    setFormError={setError}
-                    rules={{
-                      onChange: (val) => handleNumberChange(val),
-                      validate: (val) => isValidFraction(`${item.area}.makes`,`${item.area}.attempts`, "numerator", val),
-                    }}
-                  >
-                  </TextInput>
-                </FormProvider>
-                <FormProvider key="form-provider-2" {...methods}>
-                  <TextInput
-                    key={`${item.area}.attempts`+1} 
-                    name={`${item.area}.attempts`} 
-                    label="attempts"
-                    defaultValue="0"
-                    keyboardType="numeric"
-                    setFormError={setError}
-                    rules={{
-                      onChange: (val) => handleNumberChange(val),
-                      validate: (val) => isValidFraction(`${item.area}.attempts`,`${item.area}.makes`, "denominator", val),
-                      
-                    }}
-                  >
-                  </TextInput>
-                </FormProvider>
-              </View>
-            )
-          })
-        }
-        <Button style={styles.button} title="Submit" onPress={methods.handleSubmit(onSubmit)} />
+        <FormProvider {...methods}>
+          {
+            target_area.map((item, index) => {
+              if(!item.include)
+                return
+              return (
+                <View key={item}>
+                  <Text key={item.area+1}>{item.area}</Text>
+                    <TextInput
+                      key={`${item.area}.makes`+1} 
+                      name={`${item.area}.makes`} 
+                      label="makes"
+                      defaultValue="0"
+                      keyboardType="numeric"
+                      setFormError={setError}
+                      rules={{
+                        setValueAs: v => parseInt(v),
+                        max: {
+                          // TODO test watch...
+                          value: watch(`${item.area}.attempts`),
+                          message: "cannot have more makes than attempts!"
+                        }
+                      }}
+                    >
+                    </TextInput>
+                    <TextInput
+                      key={`${item.area}.attempts`+1} 
+                      name={`${item.area}.attempts`} 
+                      label="attempts"
+                      defaultValue="0"
+                      keyboardType="numeric"
+                      setFormError={setError}
+                      rules={{
+                        setValueAs: v => parseInt(v),
+                      }}
+                    >
+                    </TextInput>
+                </View>
+              )
+            })
+          }
+          <Button style={styles.button} title="Submit" onPress={methods.handleSubmit(onSubmit)} />
+        </FormProvider>
       </ScrollView>
     </View>
   )

@@ -3,11 +3,20 @@ reference -> https://legacy.reactjs.org/docs/hooks-rules.html
 */
 
 import React from 'react';
+import { 
+    View, 
+    TextInput as RNTextInput, 
+    TextInputProps as RNTextInputProps, 
+    Text, 
+    StyleSheet } from 'react-native';
 
-import { View, TextInput as RNTextInput, Text, StyleSheet } from 'react-native';
-
-import { useController, useFormContext } from 'react-hook-form';
-
+/* IMPORT HOOKS AND PROPS TYPES */
+import { 
+    useController, 
+    useFormContext, 
+    ControllerProps, 
+    UseControllerProps 
+} from 'react-hook-form';
 
 const ControlledInput = (props) => {
   const formContext = useFormContext();
@@ -25,6 +34,11 @@ const ControlledInput = (props) => {
   const { field } = useController({ name, rules, defaultValue });
 
   const hasError = Boolean(formState?.errors[name]);
+
+  console.log(name)
+  console.log(formState?.errors)
+
+  console.log(hasError);
 
   return (
     <View style={styles.container}>
