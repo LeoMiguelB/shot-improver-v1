@@ -9,7 +9,7 @@ export default Page = () => {
   
   const { ...methods } = useForm()
 
-  const { formState: { errors }, setValue, getValues,  } = methods
+  const { formState: { errors }, setValue, getValues, watch } = methods
 
   const setFError = methods.setError
   
@@ -106,7 +106,6 @@ export default Page = () => {
                       rules={{
                         setValueAs: v => parseInt(v),
                         max: {
-                          // TODO test watch...
                           value: watch(`${item.area}.attempts`),
                           message: "cannot have more makes than attempts!"
                         }

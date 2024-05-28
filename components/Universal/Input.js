@@ -33,12 +33,19 @@ const ControlledInput = (props) => {
 
   const { field } = useController({ name, rules, defaultValue });
 
-  const hasError = Boolean(formState?.errors[name]);
 
-  console.log(name)
-  console.log(formState?.errors)
+  const two_part_name = name.split(".");
+  const area = two_part_name[0]; // this is the area
+  const action = two_part_name[1]; // this is either makes or attempts
+  
+  let message = ""
 
-  console.log(hasError);
+  if(formState?.errors){
+    if(formState?.errors[area] && formState?.errors[area][action]) {
+      message = formState?.errors[area][action].message
+      console.log(message)
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -55,7 +62,7 @@ const ControlledInput = (props) => {
         />
 
         <View style={styles.errorContainer}>
-          {hasError && (<Text style={styles.error}>{formState.errors[name].message}</Text>)}
+          <Text style={styles.error}>{message}</Text>
         </View>
 
       </View>
