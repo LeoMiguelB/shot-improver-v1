@@ -1,6 +1,4 @@
-/*
-reference -> https://legacy.reactjs.org/docs/hooks-rules.html
-*/
+
 
 import React from 'react';
 import { 
@@ -47,6 +45,8 @@ const ControlledInput = (props) => {
     }
   }
 
+  console.log("field change causing re-renders")
+
   return (
     <View style={styles.container}>
       {label && (<Text style={styles.label}>{label}</Text>)}
@@ -60,11 +60,9 @@ const ControlledInput = (props) => {
           value={`${field.value}`}
           {...inputProps}
         />
-
         <View style={styles.errorContainer}>
           <Text style={styles.error}>{message}</Text>
         </View>
-
       </View>
     </View>
 
@@ -107,7 +105,6 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: 'white',
-    borderColor: 'none',
     height: 40,
     padding: 10,
     borderRadius: 4,

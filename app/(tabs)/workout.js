@@ -1,19 +1,15 @@
 import { StyleSheet, View, Text, Button, Alert, ScrollView } from "react-native"
-import { useForm, FormProvider, SubmitHandler, SubmitErrorHandler } from "react-hook-form"
-import { insert_workout } from "../db/workout_calendar_queries"
+import { useForm, FormProvider} from "react-hook-form"
+import { insert_workout } from "../db/wc_queries"
 import { openDatabase } from "../db/db"
 import { TextInput } from "../../components/Universal/Input"
 import { useState } from "react"
 
 export default Page = () => {
   
-  const { ...methods } = useForm()
-
-  const { formState: { errors }, setValue, getValues, watch } = methods
-
-  const setFError = methods.setError
+  const { watch, ...methods } = useForm()
   
-  const [formError, setError] = useState(false)
+  const [formError, setError] = useState(false) // passed setError in input
 
   const onSubmit = (data) => {
     console.log(data)
@@ -28,77 +24,91 @@ export default Page = () => {
   */
   const target_area = [
     {
-      area: "three_sec_area",
+      area: "Three Second Area",
+      db_field: "three_sec_area",
       include: true,
     },
     {
-      area: "left_block",
+      area: "Left Block",
+      db_field: "left_block",
+      include: true,
+    },
+    {
+      area: "Right Block",
+      db_field: "right_block",
       include: false,
     },
     {
-      area: "right_block",
+      area: "Left Elbow",
+      db_field: "left_elbow",
       include: false,
     },
     {
-      area: "left_elbow",
+      area: "Right Elbow",
+      db_field: "right_elbow",
       include: false,
     },
     {
-      area: "right_elbow",
+      area: "Top of Circle",
+      db_field: "top_of_circle",
       include: false,
     },
     {
-      area: "top_of_circle",
+      area: "Left Wing",
+      db_field: "left_wing",
       include: false,
     },
     {
-      area: "left_wing",
+      area: "Right Wing",
+      db_field: "right_wing",
       include: false,
     },
     {
-      area: "right_wing",
+      area: "Left Corner",
+      db_field: "left_corner",
       include: false,
     },
     {
-      area: "left_corner",
+      area: "Right Corner",
+      db_field: "right_corner",
       include: false,
     },
     {
-      area: "right_corner",
+      area: "Left Short Corner",
+      db_field: "left_short_corner",
       include: false,
     },
     {
-      area: "left_short_corner",
+      area: "Right Short Corner",
+      db_field: "right_short_corner",
       include: false,
     },
     {
-      area: "right_short_corner",
-      include: false,
-    },
-    {
-      area: "free_throw_line",
+      area: "Free Throw Line",
+      db_field: "free_throw_line",
       include: false,
     }
   ];
+  
 
   /*
-  TODO implement this errors handling
-  cannot make more than attempted...
+  TODO:
+  real time form validation only works after intitial submit
   */
   return (
     <View style={styles.container}>  
       <ScrollView>
         <FormProvider {...methods}>
           {
-            target_area.map((item, index) => {
+            target_area.map((item) => {
               if(!item.include)
                 return
+
               return (
-                <View key={item}>
-                  <Text key={item.area+1}>{item.area}</Text>
+                <View key={item.area}>
+                  <Text>{item.area}</Text>
                     <TextInput
-                      key={`${item.area}.makes`+1} 
-                      name={`${item.area}.makes`} 
+                      name={`${item.db_field}.makes`} 
                       label="makes"
                       defaultValue="0"
                       keyboardType="numeric"
@@ -106,15 +116,14 @@ export default Page = () => {
                       rules={{
                         setValueAs: v => parseInt(v),
                         max: {
-                          value: watch(`${item.area}.attempts`),
+                          value: watch(`${item.db_field}.attempts`),
                           message: "cannot have more makes than attempts!"
                         }
                       }}
                     >
                     </TextInput>
                     <TextInput
-                      key={`${item.area}.attempts`+1} 
-                      name={`${item.area}.attempts`} 
+                      name={`${item.db_field}.attempts`} 
                       label="attempts"
                       defaultValue="0"
                       keyboardType="numeric"
