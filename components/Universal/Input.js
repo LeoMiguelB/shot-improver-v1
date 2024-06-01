@@ -12,31 +12,56 @@ import {
 import { 
     useController, 
     useFormContext, 
-    ControllerProps, 
-    UseControllerProps 
+    useWatch
 } from 'react-hook-form';
 
-const ControlledInput = (props) => {
-  const formContext = useFormContext();
 
-  const { formState } = formContext;
+
+const ControlledInput = (props) => {
+  const formContext = useFormContext()
+
+  const { formState } = formContext
 
   const {
     name,
     label,
-    rules,
     defaultValue,
     ...inputProps
-  } = props;
+  } = props
 
-  const { field } = useController({ name, rules, defaultValue });
-
-
-  const two_part_name = name.split(".");
-  const area = two_part_name[0]; // this is the area
-  const action = two_part_name[1]; // this is either makes or attempts
+  const two_part_name = name.split(".")
+  const area = two_part_name[0] // this is the area
+  const action = two_part_name[1] // this is either makes or attempts
   
-  let message = ""
+  const counterpart_value = useWatch({name: `${area}.${(action == "makes") ? "attempts" : "makes"}`, defaultValue: 0}) // watch the counter part value
+
+
+  rules = { // base object for the form
+    setValueAs: v => parseInt(v),
+  }
+
+  // we will enforce max val on makes and min val on attempts
+  if(name == "makes") {
+    rules = {
+      ...rules,
+      max: {
+        value: counterpart_value,
+        message: "cannot make more attempts than makes"
+      } 
+    }
+  } else {
+    rules = {
+      ...rules,
+      min: {
+        value: counterpart_value,
+        message: "cannot make more attempts than makes"
+      } 
+    }
+  }
+
+  const { field } = useController({ name, rules, defaultValue })
+  
+  let message = null
 
   if(formState?.errors){
     if(formState?.errors[area] && formState?.errors[area][action]) {
@@ -44,8 +69,6 @@ const ControlledInput = (props) => {
       console.log(message)
     }
   }
-
-  console.log("field change causing re-renders")
 
   return (
     <View style={styles.container}>
@@ -61,7 +84,7 @@ const ControlledInput = (props) => {
           {...inputProps}
         />
         <View style={styles.errorContainer}>
-          <Text style={styles.error}>{message}</Text>
+          {message && <Text style={styles.error}>{message}</Text>}
         </View>
       </View>
     </View>
@@ -79,13 +102,15 @@ export const TextInput = (props) => {
 
   if (!formContext || !name) {
     const msg = !formContext ? "TextInput must be wrapped by the FormProvider" : "Name must be defined"
+
     console.error(msg)
-    setFormError(true)
+
     return null
   }
 
-  return <ControlledInput {...props} />;
-
+  return (
+    <ControlledInput {...props} />
+  );
 };
 
 

@@ -3,13 +3,11 @@ import { useForm, FormProvider} from "react-hook-form"
 import { insert_workout } from "../db/wc_queries"
 import { openDatabase } from "../db/db"
 import { TextInput } from "../../components/Universal/Input"
-import { useState } from "react"
+import { TwoFoldInput } from "../../components/workout/TwoFoldInput"
 
 export default Page = () => {
   
   const { watch, ...methods } = useForm()
-  
-  const [formError, setError] = useState(false) // passed setError in input
 
   const onSubmit = (data) => {
     console.log(data)
@@ -107,38 +105,26 @@ export default Page = () => {
               return (
                 <View key={item.area}>
                   <Text>{item.area}</Text>
-                    <TextInput
-                      name={`${item.db_field}.makes`} 
-                      label="makes"
-                      defaultValue="0"
-                      keyboardType="numeric"
-                      setFormError={setError}
-                      rules={{
-                        setValueAs: v => parseInt(v),
-                        max: {
-                          value: watch(`${item.db_field}.attempts`),
-                          message: "cannot have more makes than attempts!"
-                        }
-                      }}
-                    >
-                    </TextInput>
-                    <TextInput
-                      name={`${item.db_field}.attempts`} 
-                      label="attempts"
-                      defaultValue="0"
-                      keyboardType="numeric"
-                      setFormError={setError}
-                      rules={{
-                        setValueAs: v => parseInt(v),
-                      }}
-                    >
-                    </TextInput>
+                  <TextInput
+                    name={`${item.db_field}.makes`} 
+                    label="makes"
+                    defaultValue="0"
+                    keyboardType="numeric"
+                  >
+                  </TextInput>
+                  <TextInput
+                    name={`${item.db_field}.attempts`} 
+                    label="attempts"
+                    defaultValue="0"
+                    keyboardType="numeric"
+                  >
+                  </TextInput>
                 </View>
               )
             })
           }
-          <Button style={styles.button} title="Submit" onPress={methods.handleSubmit(onSubmit)} />
         </FormProvider>
+        <Button style={styles.button} title="Submit" onPress={methods.handleSubmit(onSubmit)} />
       </ScrollView>
     </View>
   )
