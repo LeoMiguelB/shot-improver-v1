@@ -83,3 +83,28 @@ export const insert_workout = async ( db, fields ) => {
 }
 
 
+export const get_workout = async ( db, date ) => {
+
+  let workout = null
+
+  try {
+    await db.transactionAsync(async tx => {
+      workout = await tx.executeSqlAsync(`
+        SELECT * FROM WorkoutCalendar INNER JOIN WorkoutSheet 
+        ON WorkoutSheet.worksheet_id = WorkoutCalendar.worksheet_id
+        WHERE workout_date = '${date}';
+      `)
+      console.log(workout)
+
+      dbg = await tx.executeSqlAsync(`
+        SELECT * FROM WorkoutCalendar;
+      `)
+      console.log(dbg)
+
+    }, readOnly = false)
+  } catch (e) {
+    console.log("caught exception: ", e)
+  }
+
+  return workout;
+}

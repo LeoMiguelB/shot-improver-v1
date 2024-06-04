@@ -16,6 +16,12 @@ import {
 } from 'react-hook-form';
 
 
+/*
+SYNOPSIS
+Will need to refactor this since ideally we make Controlled input universally an input and not just for makes and attempts.
+With that aside, the idea here is that we watch the counter part of the current action. That is if we are on makes, then we watch on attempts so that
+we can check if we more makes than attempts which is not valid. By using the useWatch hook here we avoid re-rendering the component the whole component using this.
+*/
 
 const ControlledInput = (props) => {
   const formContext = useFormContext()
@@ -35,13 +41,12 @@ const ControlledInput = (props) => {
   
   const counterpart_value = useWatch({name: `${area}.${(action == "makes") ? "attempts" : "makes"}`, defaultValue: 0}) // watch the counter part value
 
-
   rules = { // base object for the form
     setValueAs: v => parseInt(v),
   }
 
   // we will enforce max val on makes and min val on attempts
-  if(name == "makes") {
+  if(action == "makes") {
     rules = {
       ...rules,
       max: {
@@ -55,7 +60,7 @@ const ControlledInput = (props) => {
       min: {
         value: counterpart_value,
         message: "cannot make more attempts than makes"
-      } 
+      }
     }
   }
 

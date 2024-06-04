@@ -3,7 +3,6 @@ import { useForm, FormProvider} from "react-hook-form"
 import { insert_workout } from "../db/wc_queries"
 import { openDatabase } from "../db/db"
 import { TextInput } from "../../components/Universal/Input"
-import { TwoFoldInput } from "../../components/workout/TwoFoldInput"
 
 export default Page = () => {
   
