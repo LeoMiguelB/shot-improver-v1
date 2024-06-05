@@ -1,34 +1,18 @@
-// could use moment js to help perform analysis on workout metrics
-import moment from "moment"
-
 const update_fields = (fields) => {
-  const arr_fields = Object.keys(fields);
-  
-  let str = ""
-  arr_fields.forEach(item => {
-    str += `${item} = '${fields[item].makes}/${fields[item].attempts}',`
-  })
-  str = str.substring(0, str.length-1)
-  return str
+  return Object.entries(fields)
+    .map(([key, value]) => `${key} = '${value.makes}/${value.attempts}'`)
+    .join(',');
 }
 
 const set_fields = (fields) => {
-  const arr_fields = Object.keys(fields);
+  const keys = Object.keys(fields);
 
-  let str = "("
-  let values = "("
-  arr_fields.forEach(item => {
-    str += (item + ",")
-    values += `'${fields[item].makes}/${fields[item].attempts}',` 
-  })
+  const columns = keys.map(key => key).join(',');
+  const values = keys.map(key => `'${fields[key].makes}/${fields[key].attempts}'`).join(',');
 
-  // strip the last commad and append a closing bracket
-  str = str.substring(0, str.length-1) + ")"
-  values = values.substring(0, values.length-1) + ")"
+  return `(${columns})\nVALUES (${values})`;
+};
 
-  // select is used here instead of values so that we can conditionally insert values
-  return str + "\nVALUES " + values
-}
 
 export const insert_workout = async ( db, fields ) => {
   try {
@@ -87,24 +71,36 @@ export const get_workout = async ( db, date ) => {
 
   let workout = null
 
+  console.log("inside get_workout ", date)
+
   try {
     await db.transactionAsync(async tx => {
       workout = await tx.executeSqlAsync(`
-        SELECT * FROM WorkoutCalendar INNER JOIN WorkoutSheet 
+        SELECT 
+        free_throw_line, 
+        left_block, 
+        left_corner, 
+        left_elbow, 
+        left_short_corner, 
+        left_wing, 
+        right_block, 
+        right_corner, 
+        right_elbow, 
+        right_short_corner, 
+        right_wing, 
+        three_sec_area, 
+        top_of_circle 
+        FROM WorkoutCalendar INNER JOIN WorkoutSheet 
         ON WorkoutSheet.worksheet_id = WorkoutCalendar.worksheet_id
-        WHERE workout_date = '${date}';
+        WHERE WorkoutCalendar.workout_date = '${date}';
       `)
-      console.log(workout)
-
-      dbg = await tx.executeSqlAsync(`
-        SELECT * FROM WorkoutCalendar;
-      `)
-      console.log(dbg)
+      
+      console.log(workout.rows[0])
 
     }, readOnly = false)
   } catch (e) {
     console.log("caught exception: ", e)
   }
 
-  return workout;
+  return workout.rows[0];
 }
