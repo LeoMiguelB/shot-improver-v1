@@ -1,81 +1,77 @@
-const update_fields = (fields) => {
-  return Object.entries(fields)
-    .map(([key, value]) => `${key} = '${value.makes}/${value.attempts}'`)
-    .join(',');
-}
 
-const set_fields = (fields) => {
-  const keys = Object.keys(fields);
+export const insert_workout = async (db, fields) => {
 
-  const columns = keys.map(key => key).join(',');
-  const values = keys.map(key => `'${fields[key].makes}/${fields[key].attempts}'`).join(',');
+  console.log("inside insert_workout ", db)
 
-  return `(${columns})\nVALUES (${values})`;
-};
+  await db.withExclusiveTransactionAsync(async tx => {
 
+    const workout_exists = await tx.getAllAsync(`SELECT worksheet_id FROM WorkoutCalendar WHERE workout_date = date('now')`);
 
-export const insert_workout = async ( db, fields ) => {
-  try {
-    const readOnly = false;
-    await db.transactionAsync(async tx => {
-      const workout_exists = await tx.executeSqlAsync(`SELECT worksheet_id FROM WorkoutCalendar WHERE workout_date = date('now')`);
-      if (workout_exists.rowsAffected > 0) {
-        await tx.executeSqlAsync(`
-          UPDATE WorkoutSheet
-          SET ${update_fields(fields)}
-          WHERE worksheet_id = (SELECT worksheet_id FROM WorkoutCalendar WHERE workout_date = date('now'));
-        `)
-        console.log(`
-        UPDATE WorkoutSheet
-        SET ${update_fields(fields)}
-        WHERE worksheet_id = (SELECT worksheet_id FROM WorkoutCalendar WHERE workout_date = date('now'));
-        `)
-      }
-      else {
-        await tx.executeSqlAsync(`
-          INSERT INTO WorkoutSheet
-          ${set_fields(fields)};
-        `)
-        console.log(`
-        INSERT INTO WorkoutSheet
-        ${set_fields(fields)};
-        `)
+    if (workout_exists.length > 0) {
 
-        const result = await tx.executeSqlAsync(`SELECT MAX(worksheet_id) FROM WorkoutSheet`)
-        
-        const worksheet_id = result.rows[0]["MAX(worksheet_id)"]
-        
-        console.log(worksheet_id)
-        
-        await tx.executeSqlAsync(`
-        INSERT INTO WorkoutCalendar
-          (workout_date, worksheet_id)
-          VALUES
-          (date('now'), ${worksheet_id})
-          `)
+      worksheet_id = workout_exists[0]["worksheet_id"]
+
+      console.log("workout does exist hence we are updating")
+
+      console.log("updating worksheet with id: ", worksheet_id)
+
+      Object.entries(fields).map(async ([key, value]) => {
+        try {
+          // key is set and stone in constants and does not come from user input -- no possible injection here
+          await tx.runAsync(`UPDATE WorkoutSheet SET ${key} = $value WHERE worksheet_id = $ws_id`, { $value: `'${value.makes}/${value.attempts}'`, $ws_id: worksheet_id })
+
+          console.log(`updated ${key}`)
+
+        } catch (e) {
+          console.log("caught exception ", e)
         }
+      })
 
-        // tests
-        const result = await tx.executeSqlAsync(`SELECT * FROM WorkoutSheet`)
-        console.log("added rows ", result.rows)
-    }, readOnly);
-    
-  } catch (error) {
-    console.error(error)
-    throw Error("Failed to add workout")
-  }
+    }
+    else {
+
+      console.log("workout DOES NOT exist hence we are INSERTING")
+
+      console.log(Object.entries(fields).map(([key, value]) => `'${value.makes}/${value.attempts}'`))
+      try {
+        await tx.runAsync(`
+              INSERT INTO WorkoutSheet 
+              (three_sec_area, left_block, right_block, left_elbow, right_elbow, top_of_circle, left_wing, right_wing, left_corner, right_corner, left_short_corner, right_short_corner, free_throw_line)
+              VALUES 
+              (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `, Object.entries(fields).map(([key, value]) => `'${value.makes}/${value.attempts}'`))
+  
+        const result = await tx.getFirstAsync(`SELECT MAX(worksheet_id) FROM WorkoutSheet`)
+  
+        const worksheet_id = result["MAX(worksheet_id)"]
+  
+        console.log("worksheet id that was inserted ", worksheet_id)
+  
+        await tx.runAsync(`
+            INSERT INTO WorkoutCalendar
+              (workout_date, worksheet_id)
+              VALUES
+              (date('now'), ?)
+              `, [worksheet_id])
+      } catch (e) {
+        console.log("caught an exception ", e)
+      }
+    }
+  });
+
 }
 
 
-export const get_workout = async ( db, date ) => {
+export const get_workout = async (db, date) => {
+
 
   let workout = null
 
   console.log("inside get_workout ", date)
 
   try {
-    await db.transactionAsync(async tx => {
-      workout = await tx.executeSqlAsync(`
+    await db.withExclusiveTransactionAsync(async tx => {
+      workout = await tx.getFirstAsync(`
         SELECT 
         free_throw_line, 
         left_block, 
@@ -92,15 +88,15 @@ export const get_workout = async ( db, date ) => {
         top_of_circle 
         FROM WorkoutCalendar INNER JOIN WorkoutSheet 
         ON WorkoutSheet.worksheet_id = WorkoutCalendar.worksheet_id
-        WHERE WorkoutCalendar.workout_date = '${date}';
-      `)
-      
-      console.log(workout.rows[0])
+        WHERE WorkoutCalendar.workout_date = '?';
+      `, [date])
+
+      console.log(workout)
 
     }, readOnly = false)
   } catch (e) {
     console.log("caught exception: ", e)
   }
 
-  return workout.rows[0];
+  return workout;
 }

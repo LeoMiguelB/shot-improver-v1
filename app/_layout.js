@@ -23,7 +23,7 @@ function RootLayoutNav() {
 
   const loadTables = useCallback(async () => { // load tables in database
     try {
-      const db = openDatabase()
+      const db = await openDatabase()
       await create_tables(db)
     } catch (error) {
       console.error(error)

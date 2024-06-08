@@ -2,12 +2,12 @@
 the following article was used as a reference - https://medium.com/@julien-ctx/integrating-sqlite-with-react-native-a-beginners-tutorial-a74bbe34ac6a
 */
 
-// using sqlite compatible with expo sdk 50.0
 import * as SQLite from 'expo-sqlite';
 
 const db_name = "app.db"
-export function openDatabase() {
-  return SQLite.openDatabase(db_name);
+
+export const openDatabase = async () => {
+  return await SQLite.openDatabaseAsync(db_name);
 }
 
 /*
@@ -34,6 +34,7 @@ export const create_tables = async ( db ) => {
     );
   `
 
+
   // sqllite date format https://en.wikipedia.org/wiki/ISO_8601
   const workoutCalendar = `
     CREATE TABLE IF NOT EXISTS WorkoutCalendar (
@@ -46,11 +47,8 @@ export const create_tables = async ( db ) => {
     );
   `
 
-  const readOnly = false;
-  await db.transactionAsync(async tx => {
-    const workoutSheet_result = await tx.executeSqlAsync(workoutSheet);
-    console.log('rows affected:', workoutSheet_result.rowsAffected);
-    const workoutCalendar_result = await tx.executeSqlAsync(workoutCalendar);
-    console.log('rows affected:', workoutCalendar_result.rowsAffected);
-  }, readOnly);
+  await db.withExclusiveTransactionAsync(async tx => {
+    await tx.execAsync(workoutSheet);
+    await tx.execAsync(workoutCalendar);
+  });
 }
