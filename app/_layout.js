@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router';
-import { useCallback, useEffect } from 'react';
-import { openDatabase, create_tables } from './db/db';
+import { SQLiteProvider } from 'expo-sqlite';
+import { db_name } from './constants';
+import { create_tables } from './db/db';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -13,30 +14,18 @@ export const unstable_settings = {
 };
 
 export default function RootLayout() {
-
-
-  return <RootLayoutNav />;
+  return (
+      <RootLayoutNav />
+  );
 }
 
 
 function RootLayoutNav() {
-
-  const loadTables = useCallback(async () => { // load tables in database
-    try {
-      const db = await openDatabase()
-      await create_tables(db)
-    } catch (error) {
-      console.error(error)
-    }
-  }, [])
-
-  useEffect(() => {
-    loadTables()
-  },[loadTables])
-
   return (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-    </Stack>
+    <SQLiteProvider databaseName={db_name} onInit={async (db) => {create_tables(db)}}>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack>
+    </SQLiteProvider>
   );
 }

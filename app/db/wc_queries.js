@@ -1,5 +1,5 @@
-
 export const insert_workout = async (db, fields) => {
+  console.log(new Date())
 
   console.log("inside insert_workout ", db)
 
@@ -15,10 +15,14 @@ export const insert_workout = async (db, fields) => {
 
       console.log("updating worksheet with id: ", worksheet_id)
 
-      Object.entries(fields).map(async ([key, value]) => {
+
+      /*
+      !NOTE: reason runAsync is not used here is we don't want this map function to be async w.r.t insert_workout or else it may finish too late before the connection is closed
+      */
+      Object.entries(fields).map(([key, value]) => {
         try {
           // key is set and stone in constants and does not come from user input -- no possible injection here
-          await tx.runAsync(`UPDATE WorkoutSheet SET ${key} = $value WHERE worksheet_id = $ws_id`, { $value: `'${value.makes}/${value.attempts}'`, $ws_id: worksheet_id })
+          tx.runSync(`UPDATE WorkoutSheet SET ${key} = $value WHERE worksheet_id = $ws_id`, { $value: `${value.makes}/${value.attempts}`, $ws_id: worksheet_id })
 
           console.log(`updated ${key}`)
 
@@ -32,14 +36,14 @@ export const insert_workout = async (db, fields) => {
 
       console.log("workout DOES NOT exist hence we are INSERTING")
 
-      console.log(Object.entries(fields).map(([key, value]) => `'${value.makes}/${value.attempts}'`))
+      console.log(Object.entries(fields).map(([key, value]) => `${value.makes}/${value.attempts}`))
       try {
         await tx.runAsync(`
               INSERT INTO WorkoutSheet 
               (three_sec_area, left_block, right_block, left_elbow, right_elbow, top_of_circle, left_wing, right_wing, left_corner, right_corner, left_short_corner, right_short_corner, free_throw_line)
               VALUES 
               (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `, Object.entries(fields).map(([key, value]) => `'${value.makes}/${value.attempts}'`))
+            `, Object.entries(fields).map(([key, value]) => `${value.makes}/${value.attempts}`))
   
         const result = await tx.getFirstAsync(`SELECT MAX(worksheet_id) FROM WorkoutSheet`)
   
@@ -53,11 +57,16 @@ export const insert_workout = async (db, fields) => {
               VALUES
               (date('now'), ?)
               `, [worksheet_id])
-      } catch (e) {
+
+              } catch (e) {
+
         console.log("caught an exception ", e)
       }
     }
-  });
+  })
+
+  const debug_table = await db.getAllAsync(`SELECT * FROM WorkoutCalendar`)
+  console.log("tables currently in WorkoutCalendar are:", debug_table)
 
 }
 
@@ -88,7 +97,7 @@ export const get_workout = async (db, date) => {
         top_of_circle 
         FROM WorkoutCalendar INNER JOIN WorkoutSheet 
         ON WorkoutSheet.worksheet_id = WorkoutCalendar.worksheet_id
-        WHERE WorkoutCalendar.workout_date = '?';
+        WHERE WorkoutCalendar.workout_date = ?;
       `, [date])
 
       console.log(workout)

@@ -3,20 +3,21 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import CalendarPicker from 'react-native-calendar-picker'
 import { useState } from 'react';
 import { formatISO } from 'date-fns';
-import { openDatabase } from '../db/db';
 import { get_workout } from '../db/wc_queries';
 import { DataViewerTable } from '../../components/DataViewerTable';
 import { Button } from 'react-native-paper';
+import { useSQLiteContext } from 'expo-sqlite';
 
-
-export default async function Home (){
+export default function Home (){
 
   const [currDate, setCurrDate] = useState("")
 
   const [shotData, setShotData] = useState(null)
 
+  const db = useSQLiteContext()
+
   const handleGetData = async () => {
-    const db = await openDatabase()
+    console.log("inside handleGetData currDate is:", currDate)
     const workout_sheet = await get_workout(db, currDate)
     setShotData(workout_sheet)
   }

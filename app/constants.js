@@ -69,3 +69,5 @@
       include: false,
     }
   ];
+
+export const db_name = "app.db"

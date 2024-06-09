@@ -4,19 +4,20 @@ import { insert_workout } from "../db/wc_queries"
 import { openDatabase } from "../db/db"
 import { TextInput } from "../../components/Universal/Input"
 import { target_area } from "../constants"
+import { useSQLiteContext } from "expo-sqlite"
+
 
 export default Page = () => {
   
   const { watch, ...methods } = useForm()
 
+  const db = useSQLiteContext()
+
   const onSubmit = async (data) => {
     console.log("inside workout tab ", data)
 
     Alert.alert('data', JSON.stringify(data))
-
     
-    const db = await openDatabase()
-
     console.log('inside onSubmit ', db)
 
     insert_workout(db, data)

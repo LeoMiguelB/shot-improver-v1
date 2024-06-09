@@ -3,8 +3,7 @@ the following article was used as a reference - https://medium.com/@julien-ctx/i
 */
 
 import * as SQLite from 'expo-sqlite';
-
-const db_name = "app.db"
+import { db_name } from '../constants';
 
 export const openDatabase = async () => {
   return await SQLite.openDatabaseAsync(db_name);
