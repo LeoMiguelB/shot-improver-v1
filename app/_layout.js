@@ -14,18 +14,25 @@ export const unstable_settings = {
 };
 
 export default function RootLayout() {
+  /*
+  https://docs.expo.dev/router/advanced/root-layout/#:~:text=often%20used%20to%20inject%20global%20providers%20such%20as%20Redux%2C%20Themes%2C%20Styles%2C%20and%20so%20on%2C%20into%20the%20app%2C%20and%20to%20delay%20rendering%20until%20assets%20and%20fonts%20are%20loaded.
+
+  root layout is the best place to inject providers
+  */
   return (
-      <RootLayoutNav />
+    <>
+      <SQLiteProvider databaseName={db_name} onInit={async (db) => {create_tables(db)}}>
+        <RootLayoutNav />
+     </SQLiteProvider>
+    </>
   );
 }
 
 
 function RootLayoutNav() {
   return (
-    <SQLiteProvider databaseName={db_name} onInit={async (db) => {create_tables(db)}}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
-    </SQLiteProvider>
   );
 }
