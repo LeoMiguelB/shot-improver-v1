@@ -1,9 +1,9 @@
 import { StyleSheet, View, Text, Button, Alert, ScrollView } from "react-native"
 import { useForm, FormProvider} from "react-hook-form"
-import { insert_workout } from "../db/wc_queries"
-import { openDatabase } from "../db/db"
-import { TextInput } from "../../components/Universal/Input"
-import { target_area } from "../constants"
+import { insert_workout } from "./db/wc_queries"
+import { openDatabase } from "./db/db"
+import { TextInput } from "../components/Input"
+import { target_area } from "./constants"
 import { useSQLiteContext } from "expo-sqlite"
 
 
@@ -29,16 +29,16 @@ export default Page = () => {
   real time form validation only works after intitial submit
   */
   return (
-    <View style={styles.container}>  
+    <View>  
       <ScrollView>
-        <FormProvider {...methods}>
+        <FormProvider style={styles.container} {...methods}>
           {
             target_area.map((item) => {
               if(!item.include)
                 return
 
               return (
-                <View key={item.area}>
+                <View key={item.area} style={styles.areaContainer}>
                   <Text>{item.area}</Text>
                   <TextInput
                     name={`${item.db_field}.makes`} 
@@ -91,4 +91,6 @@ const styles = StyleSheet.create({
     height: 40,
     color: '#c0cbd3',
   },
+  areaContainer: {
+  }
 });

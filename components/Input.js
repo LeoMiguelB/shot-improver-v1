@@ -121,7 +121,7 @@ export const TextInput = (props) => {
 
 const styles = StyleSheet.create({
   label: {
-    color: 'white',
+    color: 'black',
     margin: 20,
     marginLeft: 0,
   },
@@ -129,12 +129,12 @@ const styles = StyleSheet.create({
     flex: -1,
     justifyContent: 'center',
     padding: 8,
-    backgroundColor: '#0e101c',
-    borderColor: 'white',
-    borderWidth: 1
-  },
+    backgroundColor: 'transparent',
+    },
   input: {
     backgroundColor: 'white',
+    borderColor: 'black',
+    borderWidth: 1,
     height: 40,
     padding: 10,
     borderRadius: 4,

@@ -1,7 +1,7 @@
-import { DataViewerTable } from "../../components/DataViewerTable";
+import { DataViewerTable } from "../components/DataViewerTable";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { get_workout } from "../db/wc_queries";
+import { get_workout } from "./db/wc_queries";
 import { useSQLiteContext } from "expo-sqlite";
 
 export default function Page() {

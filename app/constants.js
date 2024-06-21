@@ -16,57 +16,57 @@
     {
       area: "Right Block",
       db_field: "right_block",
-      include: false,
+      include: true,
     },
     {
       area: "Left Elbow",
       db_field: "left_elbow",
-      include: false,
+      include: true,
     },
     {
       area: "Right Elbow",
       db_field: "right_elbow",
-      include: false,
+      include: true,
     },
     {
       area: "Top of Circle",
       db_field: "top_of_circle",
-      include: false,
+      include: true,
     },
     {
       area: "Left Wing",
       db_field: "left_wing",
-      include: false,
+      include: true,
     },
     {
       area: "Right Wing",
       db_field: "right_wing",
-      include: false,
+      include: true,
     },
     {
       area: "Left Corner",
       db_field: "left_corner",
-      include: false,
+      include: true,
     },
     {
       area: "Right Corner",
       db_field: "right_corner",
-      include: false,
+      include: true,
     },
     {
       area: "Left Short Corner",
       db_field: "left_short_corner",
-      include: false,
+      include: true,
     },
     {
       area: "Right Short Corner",
       db_field: "right_short_corner",
-      include: false,
+      include: true,
     },
     {
       area: "Free Throw Line",
       db_field: "free_throw_line",
-      include: false,
+      include: true,
     }
   ];
 
